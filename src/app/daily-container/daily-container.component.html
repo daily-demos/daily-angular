@@ -1,0 +1,9 @@
+<h1>Call object Angular demo</h1>
+<join-form
+  *ngIf="!callObject"
+  (setCallObject)="setCallObject($event)"></join-form>
+<app-call
+  *ngIf="callObject"
+  [callObject]="callObject"
+  (callEnded)="callEnded()"></app-call>
+<app-chat *ngIf="callObject" [callObject]="callObject"></app-chat>

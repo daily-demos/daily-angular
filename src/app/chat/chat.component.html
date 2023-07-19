@@ -1,0 +1,24 @@
+<div class="chat-wrapper" [ngClass]="{ open: chatIsOpen }">
+  <div>
+    <button class="chat-button" (click)="toggleChatView()">
+      <img *ngIf="!chatIsOpen" src="../../assets/chat.svg" alt="Open chat" />
+      <img *ngIf="chatIsOpen" src="../../assets/x.svg" alt="Close chat" />
+    </button>
+  </div>
+  <div class="chat">
+    <div class="chat-messages">
+      <p *ngFor="let m of messages">{{ m.name }}: {{ m.message }}</p>
+    </div>
+    <form [formGroup]="chatForm" (ngSubmit)="onSubmit()">
+      <textarea
+        name="chat-message"
+        id="chatMessage"
+        formControlName="message"
+        placeholder="Type a message..."
+        (keydown)="onKeyDown($event)"></textarea>
+      <button class="submit-button" type="submit">
+        <img src="../../assets/send.svg" alt="Send chat message" />
+      </button>
+    </form>
+  </div>
+</div>

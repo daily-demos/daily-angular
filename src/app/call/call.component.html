@@ -1,0 +1,13 @@
+<h2 *ngIf="!error">Participant count: {{ participants.length }}</h2>
+<error-message
+  *ngIf="error"
+  [error]="error"
+  (reset)="leaveCall()"></error-message>
+<div *ngIf="!error" class="participants-container">
+  <video-tile
+    *ngFor="let participant of participants"
+    (leaveCallClick)="leaveCall()"
+    (toggleVideoClick)="toggleLocalVideo()"
+    (toggleAudioClick)="toggleLocalAudio()"
+    [participant]="participant"></video-tile>
+</div>
