@@ -4,7 +4,6 @@ import {
   DailyEventObjectParticipant,
   DailyParticipant,
   DailyEventObjectFatalError,
-  DailyEventObjectCameraError,
   DailyEventObjectParticipants,
   DailyEventObjectNoPayload,
   DailyEventObjectParticipantLeft,
@@ -20,6 +19,7 @@ export class CallComponent {
   @Output() callEnded: EventEmitter<null> = new EventEmitter();
   error: string = "";
   participants: Array<DailyParticipant> = [];
+  isPublic: boolean = true;
 
   ngOnInit(): void {
     if (!this.callObject) return;
@@ -53,6 +53,11 @@ export class CallComponent {
   handleJoinedMeeting = (e: DailyEventObjectParticipants | undefined): void => {
     if (!e) return; // make TypeScript happy
     console.log(e.action);
+    const { access } = this.callObject.accessState();
+
+    // Set flag if room is public. If it's not, we'll alert the user in the UI.
+    // Rooms should be public since this demo does not include access management.
+    this.isPublic = access !== "unknown" && access.level === "full";
     // Add local participants to participants list used to display video tiles
     this.participants.push(e.participants.local);
   };

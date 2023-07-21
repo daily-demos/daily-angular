@@ -1,6 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { DailyEventObjectAppMessage } from "@daily-co/daily-js";
+
 interface Message {
   name: string;
   message: string;

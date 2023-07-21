@@ -2,12 +2,18 @@
 <error-message
   *ngIf="error"
   [error]="error"
-  (reset)="leaveCall()"></error-message>
+  (reset)="leaveCall()"
+></error-message>
+<p *ngIf="!isPublic">
+  This room is private and you are now in the lobby. Please use a public room to
+  join a call.
+</p>
 <div *ngIf="!error" class="participants-container">
   <video-tile
     *ngFor="let participant of participants"
     (leaveCallClick)="leaveCall()"
     (toggleVideoClick)="toggleLocalVideo()"
     (toggleAudioClick)="toggleLocalAudio()"
-    [participant]="participant"></video-tile>
+    [participant]="participant"
+  ></video-tile>
 </div>
