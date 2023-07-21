@@ -6,9 +6,13 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
   },
-  "private": true,
+  "author": "Jess Mitchell",
+  "license": "BSD-2-Clause",
+  "keywords": [
+    "webrtc",
+    "angular"
+  ],
   "dependencies": {
     "@angular/animations": "^16.0.0",
     "@angular/common": "^16.0.0",
