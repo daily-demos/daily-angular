@@ -1,17 +1,6 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import DailyIframe, {
-  DailyCall,
-  DailyEventObjectAppMessage,
-  DailyEventObjectParticipant,
-  DailyParticipant,
-  DailyEventObjectFatalError,
-  DailyEventObjectCameraError,
-  DailyEventObjectParticipants,
-  DailyEventObjectNetworkConnectionEvent,
-  DailyRoomInfo,
-  DailyEventObjectParticipantLeft,
-} from "@daily-co/daily-js";
+import DailyIframe, { DailyCall } from "@daily-co/daily-js";
 
 @Component({
   selector: "join-form",
@@ -20,6 +9,7 @@ import DailyIframe, {
 })
 export class JoinFormComponent {
   @Output() setCallObject: EventEmitter<DailyCall> = new EventEmitter();
+  @Output() setName: EventEmitter<string> = new EventEmitter();
   callObject: DailyCall;
 
   joinForm = this.formBuilder.group({
@@ -30,18 +20,21 @@ export class JoinFormComponent {
   constructor(private formBuilder: FormBuilder) {}
 
   onSubmit(): void {
+    const { name, url } = this.joinForm.value;
+    if (!name || !url) return;
+    // Create the call object
     this.callObject = DailyIframe.createCallObject();
-    console.log("The join form submitted:", this.joinForm.value);
-
     // Join Daily call
     this.callObject.join({
-      userName: this.joinForm.value.name!, // not null to make TypeScript happy
-      url: this.joinForm.value.url!,
+      userName: name!, // not null to make TypeScript happy
+      url: url!,
     });
 
     // Clear form inputs
     this.joinForm.reset();
     // Emit event to update callObject var in parent component
     this.setCallObject.emit(this.callObject);
+    // Emit event to update userName var in parent component
+    this.setName.emit(name);
   }
 }

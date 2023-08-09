@@ -3,16 +3,16 @@
   autoPlay
   muted
   playsInline
-  [srcObject]="videoTrack"></video>
+  [srcObject]="videoStream"></video>
 <div class="video-placeholder" *ngIf="!participant.video">
   <span>
     <img
       *ngIf="!participant.video && !participant.local"
       src="../../assets/vid_off.svg"
-      alt="Mic is off" />
+      alt="Camera is off" />
   </span>
 </div>
-<audio *ngIf="audioTrack" autoPlay playsInline [srcObject]="audioTrack">
+<audio *ngIf="audioStream" autoPlay playsInline [srcObject]="audioStream">
   <track kind="captions" />
 </audio>
 <div class="participant-info">
@@ -38,7 +38,7 @@
     <img
       *ngIf="participant.video"
       src="../../assets/vid_on.svg"
-      alt="Turn video on" />
+      alt="Turn video off" />
   </button>
   <button class="media-control" (click)="toggleAudio()">
     <img
@@ -48,7 +48,7 @@
     <img
       *ngIf="participant.audio"
       src="../../assets/mic_on.svg"
-      alt="Turn mic on" />
+      alt="Turn mic off" />
   </button>
 </div>
 <button

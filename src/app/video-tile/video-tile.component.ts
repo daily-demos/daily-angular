@@ -14,18 +14,21 @@ import { DailyParticipant } from "@daily-co/daily-js";
 })
 export class VideoTileComponent {
   @Input() participant: DailyParticipant;
-  videoTrack: MediaStream;
-  audioTrack: MediaStream;
+  @Input() joined: boolean;
+  videoStream: MediaStream;
+  audioStream: MediaStream;
   @Output() leaveCallClick: EventEmitter<null> = new EventEmitter();
   @Output() toggleVideoClick: EventEmitter<null> = new EventEmitter();
   @Output() toggleAudioClick: EventEmitter<null> = new EventEmitter();
 
   ngOnInit(): void {
+    console.log("on tile init");
     // Add tracks when the participant joins
     this.addTracks(this.participant);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log("tile on change");
     if (!changes["participant"].previousValue) {
       // If tracks weren't available on join, add tracks after the first update
       this.addTracks(changes["participant"].currentValue);
@@ -33,11 +36,12 @@ export class VideoTileComponent {
   }
 
   addTracks(p: DailyParticipant): void {
+    console.log("add tracks");
     if (p.tracks.video.persistentTrack) {
-      this.videoTrack = new MediaStream([p.tracks.video.persistentTrack]);
+      this.videoStream = new MediaStream([p.tracks.video.persistentTrack]);
     }
     if (p.tracks.audio.persistentTrack) {
-      this.audioTrack = new MediaStream([p.tracks.audio.persistentTrack]);
+      this.audioStream = new MediaStream([p.tracks.audio.persistentTrack]);
     }
   }
 

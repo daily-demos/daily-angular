@@ -10,10 +10,16 @@ export class DailyContainerComponent {
   // Store callObject in this parent container.
   // Most callObject logic in CallComponent.
   callObject: DailyCall | null;
+  userName: string;
 
   setCallObject(co: DailyCall): void {
     // Event is emitted from CallComponent
     this.callObject = co;
+  }
+
+  setName(name: string): void {
+    // Event is emitted from CallComponent
+    this.userName = name;
   }
 
   callEnded(): void {

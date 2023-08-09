@@ -8,8 +8,8 @@ import { JoinFormComponent } from "./join-form/join-form.component";
 import { DailyContainerComponent } from "./daily-container/daily-container.component";
 import { VideoTileComponent } from "./video-tile/video-tile.component";
 import { CallComponent } from "./call/call.component";
-import { ChatComponent } from './chat/chat.component';
-import { ErrorMessageComponent } from './error-message/error-message.component';
+import { ChatComponent } from "./chat/chat.component";
+import { ErrorMessageComponent } from "./error-message/error-message.component";
 
 @NgModule({
   declarations: [
@@ -18,7 +18,6 @@ import { ErrorMessageComponent } from './error-message/error-message.component';
     DailyContainerComponent,
     VideoTileComponent,
     CallComponent,
-    VideoTileComponent,
     ChatComponent,
     ErrorMessageComponent,
   ],

@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { DailyEventObjectAppMessage } from "@daily-co/daily-js";
+import { DailyCall, DailyEventObjectAppMessage } from "@daily-co/daily-js";
 
 interface Message {
   name: string;
@@ -13,7 +13,8 @@ interface Message {
   styleUrls: ["./chat.component.css"],
 })
 export class ChatComponent {
-  @Input() callObject: any;
+  @Input() callObject: DailyCall;
+  @Input() userName: string;
   messages: Array<Message> = [];
 
   constructor(private formBuilder: FormBuilder) {}
@@ -26,9 +27,7 @@ export class ChatComponent {
 
   ngOnInit(): void {
     if (!this.callObject) return;
-    this.callObject.on("app-message", (e: DailyEventObjectAppMessage) =>
-      this.handleNewMessage(e)
-    );
+    this.callObject.on("app-message", this.handleNewMessage);
   }
 
   ngOnDestroy(): void {
@@ -44,11 +43,12 @@ export class ChatComponent {
   }
 
   // Add new message to message array to be displayed in UI
-  handleNewMessage(e: DailyEventObjectAppMessage): void {
+  handleNewMessage = (e: DailyEventObjectAppMessage<any> | undefined): void => {
+    if (!e) return;
     console.log(e);
     if (e.data.event === "request-chat-history") return;
     this.messages.push({ message: e.data.message, name: e.data.name });
-  }
+  };
 
   // Submit chat form if user presses Enter key while the textarea has focus
   onKeyDown(event: any): void {
@@ -63,8 +63,10 @@ export class ChatComponent {
     const message = this.chatForm.value.message?.trim();
     if (!message) return;
 
-    const name = this.callObject.participants().local.user_name;
-    this.callObject.sendAppMessage({ message: message, name });
+    this.callObject.sendAppMessage({
+      message: message,
+      name: this.userName,
+    });
     // add your message to the chat (the app-message event does not get fired for your own messages, only other participants).
     this.messages.push({ message, name: "Me" });
     // clear the form input for your next message

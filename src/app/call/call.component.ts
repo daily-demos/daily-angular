@@ -20,6 +20,8 @@ export class CallComponent {
   error: string = "";
   participants: Array<DailyParticipant> = [];
   isPublic: boolean = true;
+  joined: boolean = false;
+  name: string = "";
 
   ngOnInit(): void {
     if (!this.callObject) return;
@@ -30,6 +32,7 @@ export class CallComponent {
       .on("participant-joined", this.participantJoined)
       .on("participant-updated", this.updateParticipants)
       .on("participant-left", this.handleParticipantLeft)
+      .on("left-meeting", this.handleLeftMeeting)
       .on("error", this.handleError);
   }
 
@@ -42,6 +45,7 @@ export class CallComponent {
       .off("participant-joined", this.participantJoined)
       .off("participant-updated", this.updateParticipants)
       .off("participant-left", this.handleParticipantLeft)
+      .off("left-meeting", this.handleLeftMeeting)
       .off("error", this.handleError);
   }
 
@@ -52,7 +56,9 @@ export class CallComponent {
 
   handleJoinedMeeting = (e: DailyEventObjectParticipants | undefined): void => {
     if (!e) return; // make TypeScript happy
-    console.log(e.action);
+    console.log(e);
+    this.joined = true;
+
     const { access } = this.callObject.accessState();
 
     // Set flag if room is public. If it's not, we'll alert the user in the UI.
@@ -72,8 +78,7 @@ export class CallComponent {
   updateParticipants = (e: DailyEventObjectParticipant | undefined): void => {
     if (!e) return;
 
-    // This event is triggered often.
-    console.log(e.action);
+    // Note: This event is triggered often.
     // Replace participant object with updated version.
     // In more performance-concerned apps, you can check if the change is relevant before replacing it.
     const index = this.participants.findIndex(
@@ -101,28 +106,39 @@ export class CallComponent {
     this.error = e.errorMsg;
   };
 
+  handleLeftMeeting = (e: DailyEventObjectNoPayload | undefined): void => {
+    if (!e) return;
+    console.log(e);
+    this.joined = false;
+    this.callObject.destroy();
+    this.callEnded.emit();
+  };
+
   leaveCall(): void {
     this.error = "";
-    if (!this.callObject) {
-      console.log("No call object to leave. :(");
-      return;
-    }
+    if (!this.callObject) return;
+
     console.log("leaving/destroying call object");
-    // Leave call and reset UI to show the join form again.
-    this.callObject.leave().then(() => {
-      this.callObject.destroy();
-      this.callEnded.emit();
-    });
+    // Leave call
+    this.callObject.leave();
   }
 
   toggleLocalVideo() {
     // Event is emitted from VideoTileComponent
+
+    // Confirm they're in the call before updating media
+    if (!this.joined) return;
+    // Toggle current audio state
     const videoOn = this.callObject.localVideo();
     this.callObject.setLocalVideo(!videoOn);
   }
 
   toggleLocalAudio() {
     // Event is emitted from VideoTileComponent
+
+    // Confirm they're in the call before updating media
+    if (!this.joined) return;
+    // Toggle current audio state
     const audioOn = this.callObject.localAudio();
     this.callObject.setLocalAudio(!audioOn);
   }
