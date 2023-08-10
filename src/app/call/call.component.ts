@@ -19,7 +19,9 @@ export type Participant = {
   id: string;
 };
 
-type Participants = Array<Participant>;
+type Participants = {
+  [key: string]: Participant;
+};
 
 @Component({
   selector: "app-call",
@@ -27,10 +29,11 @@ type Participants = Array<Participant>;
   styleUrls: ["./call.component.css"],
 })
 export class CallComponent {
+  Object = Object;
   @Input() callObject: DailyCall;
   @Output() callEnded: EventEmitter<null> = new EventEmitter();
   error: string = "";
-  participants: Participants = [];
+  participants: Participants = {};
   isPublic: boolean = true;
   joined: boolean = false;
   name: string = "";
@@ -78,27 +81,13 @@ export class CallComponent {
     };
   }
 
-  addNewParticipant(participant: DailyParticipant) {
+  addOrUpdateParticipant(participant: DailyParticipant) {
     const p = this.formatParticipantObj(participant);
-    this.participants.push(p);
-  }
-
-  findParticipant(participant: DailyParticipant): Participant {
-    return this.participants.filter(
-      (p) => p.id === participant.session_id
-    )?.[0];
-  }
-
-  replaceParticipant(participant: DailyParticipant): void {
-    const index = this.participants.findIndex(
-      (p: Participant) => p.id === participant.session_id
-    );
-    console.log(index);
-    this.participants[index] = this.formatParticipantObj(participant);
+    this.participants[participant.session_id] = p;
   }
 
   updateParticipantAsNeeded(participant: DailyParticipant): void {
-    const currentParticipant = this.findParticipant(participant);
+    const currentParticipant = this.participants[participant.session_id];
     console.log(currentParticipant);
 
     const { video } = participant.tracks;
@@ -110,7 +99,7 @@ export class CallComponent {
       currentParticipant.videoOn !== videoIsPlayable ||
       currentParticipant.audioOn !== audioIsPlayable
     ) {
-      this.replaceParticipant(participant);
+      this.addOrUpdateParticipant(participant);
     }
   }
 
@@ -132,14 +121,14 @@ export class CallComponent {
     // Rooms should be public since this demo does not include access management.
     this.isPublic = access !== "unknown" && access.level === "full";
     // Add local participants to participants list used to display video tiles
-    this.addNewParticipant(e.participants.local);
+    this.addOrUpdateParticipant(e.participants.local);
   };
 
   participantJoined = (e: DailyEventObjectParticipant | undefined) => {
     if (!e) return;
     console.log(e.action);
     // Add remote participants to participants list used to display video tiles
-    this.addNewParticipant(e.participant);
+    this.addOrUpdateParticipant(e.participant);
   };
 
   updateParticipants = (e: DailyEventObjectParticipant | undefined): void => {
@@ -157,11 +146,8 @@ export class CallComponent {
   ): void => {
     if (!e) return;
     console.log(e.action);
-    // Remove the participant who left the call from the UI.
-    const index = this.participants.findIndex(
-      (p: any) => p.session_id === e.participant.session_id
-    );
-    this.participants.splice(index, 1);
+
+    delete this.participants[e.participant.session_id];
   };
 
   handleError = (e: DailyEventObjectFatalError | undefined): void => {

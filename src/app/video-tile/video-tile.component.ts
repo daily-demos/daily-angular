@@ -15,12 +15,6 @@ import { Participant } from "../call/call.component";
 export class VideoTileComponent {
   @Input() joined: boolean;
   @Input() participant: Participant;
-  // @Input() isLocal: boolean;
-  // @Input() name: string;
-  // @Input() videoIsOn: boolean;
-  // @Input() audioIsOn: boolean;
-  // @Input() videoStream: MediaStream | undefined | null;
-  // @Input() audioStream: MediaStream | undefined | null;
 
   @Output() leaveCallClick: EventEmitter<null> = new EventEmitter();
   @Output() toggleVideoClick: EventEmitter<null> = new EventEmitter();
@@ -28,19 +22,15 @@ export class VideoTileComponent {
 
   ngOnInit(): void {
     console.log("on tile init");
-    // Add tracks when the participant joins
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log("tile on change");
-    console.log(changes);
-    if (!changes["participant"].previousValue) {
-      // If tracks weren't available on join, add tracks after the first update
-    }
   }
 
   ngDoCheck() {
     console.log("do check");
+    // to do: check if the original participant values have changed
   }
 
   toggleVideo(): void {

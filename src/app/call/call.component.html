@@ -1,4 +1,6 @@
-<h2 *ngIf="!error">Participant count: {{ participants.length }}</h2>
+<h2 *ngIf="!error">
+  Participant count: {{ Object.keys(participants).length }}
+</h2>
 <error-message
   *ngIf="error"
   [error]="error"
@@ -9,7 +11,7 @@
 </p>
 <div *ngIf="!error" class="participants-container">
   <video-tile
-    *ngFor="let participant of participants"
+    *ngFor="let participant of Object.values(participants)"
     (leaveCallClick)="leaveCall()"
     (toggleVideoClick)="toggleLocalVideo()"
     (toggleAudioClick)="toggleLocalAudio()"
