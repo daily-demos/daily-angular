@@ -1,52 +1,56 @@
 <video
-  *ngIf="participant.video"
+  *ngIf="participant.videoOn"
   autoPlay
   muted
   playsInline
-  [srcObject]="videoStream"></video>
-<div class="video-placeholder" *ngIf="!participant.video">
+  [srcObject]="participant.videoStream"></video>
+<div class="video-placeholder" *ngIf="!participant.videoOn">
   <span>
     <img
-      *ngIf="!participant.video && !participant.local"
+      *ngIf="!participant.videoOn && !participant.local"
       src="../../assets/vid_off.svg"
       alt="Camera is off" />
   </span>
 </div>
-<audio *ngIf="audioStream" autoPlay playsInline [srcObject]="audioStream">
+<audio
+  *ngIf="participant.audioStream"
+  autoPlay
+  playsInline
+  [srcObject]="participant.audioStream">
   <track kind="captions" />
 </audio>
 <div class="participant-info">
   <p class="name">
-    {{ participant.user_name }}
+    {{ participant.userName }}
   </p>
   <img
-    *ngIf="!participant.audio && !participant.local"
+    *ngIf="!participant.audioOn && !participant.local"
     src="../../assets/mic_off.svg"
     alt="Mic is off" />
   <img
-    *ngIf="participant.audio && !participant.local"
+    *ngIf="participant.audioOn && !participant.local"
     src="../../assets/mic_on.svg"
     alt="Mic is on" />
 </div>
 
-<div *ngIf="participant.local" id="controls">
+<div *ngIf="participant.local && this.joined" id="controls">
   <button class="media-control" (click)="toggleVideo()">
     <img
-      *ngIf="!participant.video"
+      *ngIf="!participant.videoOn"
       src="../../assets/vid_off.svg"
       alt="Turn video on" />
     <img
-      *ngIf="participant.video"
+      *ngIf="participant.videoOn"
       src="../../assets/vid_on.svg"
       alt="Turn video off" />
   </button>
   <button class="media-control" (click)="toggleAudio()">
     <img
-      *ngIf="!participant.audio"
+      *ngIf="!participant.audioOn"
       src="../../assets/mic_off.svg"
       alt="Turn mic on" />
     <img
-      *ngIf="participant.audio"
+      *ngIf="participant.audioOn"
       src="../../assets/mic_on.svg"
       alt="Turn mic off" />
   </button>

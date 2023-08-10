@@ -10,12 +10,13 @@ import {
 } from "@daily-co/daily-js";
 
 export type Participant = {
-  persistentVideoTrack?: MediaStreamTrack;
-  persistentAudioTrack?: MediaStreamTrack;
+  videoStream?: MediaStream | undefined | null;
+  audioStream?: MediaStream | undefined | null;
   videoOn: boolean;
   audioOn: boolean;
   userName: string;
   local: boolean;
+  id: string;
 };
 
 type Participants = Array<Participant>;
@@ -63,12 +64,17 @@ export class CallComponent {
   formatParticipantObj(p: DailyParticipant): Participant {
     const { video, audio } = p.tracks;
     return {
-      persistentVideoTrack: video?.persistentTrack,
-      persistentAudioTrack: audio?.persistentTrack,
+      videoStream: video?.persistentTrack
+        ? new MediaStream([video.persistentTrack])
+        : null,
+      audioStream: audio?.persistentTrack
+        ? new MediaStream([audio.persistentTrack])
+        : null,
       videoOn: video.state === "playable",
       audioOn: audio.state === "playable",
       userName: p.user_name,
       local: p.local,
+      id: p.session_id,
     };
   }
 
@@ -77,11 +83,38 @@ export class CallComponent {
     this.participants.push(p);
   }
 
-  checkChange(participant: DailyParticipant): boolean {
-    return true;
+  findParticipant(participant: DailyParticipant): Participant {
+    return this.participants.filter(
+      (p) => p.id === participant.session_id
+    )?.[0];
   }
 
-  updateParticipantsList(sessionId: string): void {}
+  replaceParticipant(participant: DailyParticipant): void {
+    const index = this.participants.findIndex(
+      (p: Participant) => p.id === participant.session_id
+    );
+    console.log(index);
+    this.participants[index] = this.formatParticipantObj(participant);
+  }
+
+  updateParticipantAsNeeded(participant: DailyParticipant): void {
+    const currentParticipant = this.findParticipant(participant);
+    console.log(currentParticipant);
+
+    const { video } = participant.tracks;
+    const { audio } = participant.tracks;
+    const videoIsPlayable = video.state === "playable";
+    const audioIsPlayable = audio.state === "playable";
+    console.log(currentParticipant.videoOn, videoIsPlayable);
+    if (
+      currentParticipant.videoOn !== videoIsPlayable ||
+      currentParticipant.audioOn !== audioIsPlayable
+    ) {
+      this.replaceParticipant(participant);
+    }
+  }
+
+  updateParticipantInList(sessionId: string, key: string): void {}
 
   handleJoiningMeeting(e: DailyEventObjectNoPayload | undefined): void {
     // No action needed
@@ -111,17 +144,12 @@ export class CallComponent {
 
   updateParticipants = (e: DailyEventObjectParticipant | undefined): void => {
     if (!e) return;
+    // This is sometimes emitted before joined-meeting
+    if (!this.joined) return;
 
-    // Note: This event is triggered often.
-    // Replace participant object with updated version.
-    // In more performance-concerned apps, you can check if the change is relevant before replacing it.
-    const index = this.participants.findIndex(
-      (p: any) => p.session_id === e.participant.session_id
-    );
-    const shouldUpdateParticipant = this.checkChange(e.participant);
-    if (shouldUpdateParticipant) {
-      this.updateParticipantsList(e.participant.session_id);
-    }
+    // Note: This event is triggered often and can cause performance issues if it results in rerendering media every time.
+
+    this.updateParticipantAsNeeded(e.participant);
   };
 
   handleParticipantLeft = (
