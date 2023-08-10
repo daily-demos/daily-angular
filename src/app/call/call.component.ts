@@ -9,6 +9,17 @@ import {
   DailyEventObjectParticipantLeft,
 } from "@daily-co/daily-js";
 
+export type Participant = {
+  persistentVideoTrack?: MediaStreamTrack;
+  persistentAudioTrack?: MediaStreamTrack;
+  videoOn: boolean;
+  audioOn: boolean;
+  userName: string;
+  local: boolean;
+};
+
+type Participants = Array<Participant>;
+
 @Component({
   selector: "app-call",
   templateUrl: "./call.component.html",
@@ -18,7 +29,7 @@ export class CallComponent {
   @Input() callObject: DailyCall;
   @Output() callEnded: EventEmitter<null> = new EventEmitter();
   error: string = "";
-  participants: Array<DailyParticipant> = [];
+  participants: Participants = [];
   isPublic: boolean = true;
   joined: boolean = false;
   name: string = "";
@@ -49,6 +60,29 @@ export class CallComponent {
       .off("error", this.handleError);
   }
 
+  formatParticipantObj(p: DailyParticipant): Participant {
+    const { video, audio } = p.tracks;
+    return {
+      persistentVideoTrack: video?.persistentTrack,
+      persistentAudioTrack: audio?.persistentTrack,
+      videoOn: video.state === "playable",
+      audioOn: audio.state === "playable",
+      userName: p.user_name,
+      local: p.local,
+    };
+  }
+
+  addNewParticipant(participant: DailyParticipant) {
+    const p = this.formatParticipantObj(participant);
+    this.participants.push(p);
+  }
+
+  checkChange(participant: DailyParticipant): boolean {
+    return true;
+  }
+
+  updateParticipantsList(sessionId: string): void {}
+
   handleJoiningMeeting(e: DailyEventObjectNoPayload | undefined): void {
     // No action needed
     console.log(e?.action);
@@ -65,14 +99,14 @@ export class CallComponent {
     // Rooms should be public since this demo does not include access management.
     this.isPublic = access !== "unknown" && access.level === "full";
     // Add local participants to participants list used to display video tiles
-    this.participants.push(e.participants.local);
+    this.addNewParticipant(e.participants.local);
   };
 
   participantJoined = (e: DailyEventObjectParticipant | undefined) => {
     if (!e) return;
     console.log(e.action);
     // Add remote participants to participants list used to display video tiles
-    this.participants.push(e.participant);
+    this.addNewParticipant(e.participant);
   };
 
   updateParticipants = (e: DailyEventObjectParticipant | undefined): void => {
@@ -84,7 +118,10 @@ export class CallComponent {
     const index = this.participants.findIndex(
       (p: any) => p.session_id === e.participant.session_id
     );
-    this.participants[index] = e.participant;
+    const shouldUpdateParticipant = this.checkChange(e.participant);
+    if (shouldUpdateParticipant) {
+      this.updateParticipantsList(e.participant.session_id);
+    }
   };
 
   handleParticipantLeft = (
