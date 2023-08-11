@@ -16,5 +16,10 @@
     (toggleVideoClick)="toggleLocalVideo()"
     (toggleAudioClick)="toggleLocalAudio()"
     [joined]="joined"
-    [participant]="participant"></video-tile>
+    [videoOn]="participant.videoOn"
+    [audioOn]="participant.audioOn"
+    [userName]="participant.userName"
+    [local]="participant.local"
+    [videoTrack]="participant.videoTrack"
+    [audioTrack]="participant.audioTrack"></video-tile>
 </div>

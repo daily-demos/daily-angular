@@ -10,8 +10,8 @@ import {
 } from "@daily-co/daily-js";
 
 export type Participant = {
-  videoStream?: MediaStream | undefined | null;
-  audioStream?: MediaStream | undefined | null;
+  videoTrack?: MediaStreamTrack | undefined;
+  audioTrack?: MediaStreamTrack | undefined;
   videoOn: boolean;
   audioOn: boolean;
   userName: string;
@@ -64,15 +64,12 @@ export class CallComponent {
       .off("error", this.handleError);
   }
 
+  // Make a copy of the participant information we're actually interested in to simplify things.
   formatParticipantObj(p: DailyParticipant): Participant {
     const { video, audio } = p.tracks;
     return {
-      videoStream: video?.persistentTrack
-        ? new MediaStream([video.persistentTrack])
-        : null,
-      audioStream: audio?.persistentTrack
-        ? new MediaStream([audio.persistentTrack])
-        : null,
+      videoTrack: video?.persistentTrack,
+      audioTrack: audio?.persistentTrack,
       videoOn: video.state === "playable",
       audioOn: audio.state === "playable",
       userName: p.user_name,
@@ -81,29 +78,33 @@ export class CallComponent {
     };
   }
 
-  addOrUpdateParticipant(participant: DailyParticipant) {
+  addParticipant(participant: DailyParticipant) {
     const p = this.formatParticipantObj(participant);
     this.participants[participant.session_id] = p;
   }
 
   updateParticipantAsNeeded(participant: DailyParticipant): void {
     const currentParticipant = this.participants[participant.session_id];
-    console.log(currentParticipant);
 
     const { video } = participant.tracks;
     const { audio } = participant.tracks;
     const videoIsPlayable = video.state === "playable";
     const audioIsPlayable = audio.state === "playable";
-    console.log(currentParticipant.videoOn, videoIsPlayable);
-    if (
-      currentParticipant.videoOn !== videoIsPlayable ||
-      currentParticipant.audioOn !== audioIsPlayable
-    ) {
-      this.addOrUpdateParticipant(participant);
+
+    // Only the video/audio can change currently (not the name or if they're local), so we check for those changes.
+    if (currentParticipant.videoOn !== videoIsPlayable) {
+      currentParticipant.videoOn = videoIsPlayable;
+    }
+    if (currentParticipant.audioOn !== audioIsPlayable) {
+      currentParticipant.audioOn = audioIsPlayable;
+    }
+    if (currentParticipant.videoTrack?.id !== video.persistentTrack?.id) {
+      currentParticipant.videoTrack = video.persistentTrack;
+    }
+    if (currentParticipant.audioTrack?.id !== audio.persistentTrack?.id) {
+      currentParticipant.audioTrack = audio.persistentTrack;
     }
   }
-
-  updateParticipantInList(sessionId: string, key: string): void {}
 
   handleJoiningMeeting(e: DailyEventObjectNoPayload | undefined): void {
     // No action needed
@@ -121,14 +122,14 @@ export class CallComponent {
     // Rooms should be public since this demo does not include access management.
     this.isPublic = access !== "unknown" && access.level === "full";
     // Add local participants to participants list used to display video tiles
-    this.addOrUpdateParticipant(e.participants.local);
+    this.addParticipant(e.participants.local);
   };
 
   participantJoined = (e: DailyEventObjectParticipant | undefined) => {
     if (!e) return;
     console.log(e.action);
     // Add remote participants to participants list used to display video tiles
-    this.addOrUpdateParticipant(e.participant);
+    this.addParticipant(e.participant);
   };
 
   updateParticipants = (e: DailyEventObjectParticipant | undefined): void => {
@@ -136,7 +137,7 @@ export class CallComponent {
     // This is sometimes emitted before joined-meeting
     if (!this.joined) return;
 
-    // Note: This event is triggered often and can cause performance issues if it results in rerendering media every time.
+    // Note: This event is triggered often and can cause performance issues if it results in rerendering child components every time it's emitted.
 
     this.updateParticipantAsNeeded(e.participant);
   };

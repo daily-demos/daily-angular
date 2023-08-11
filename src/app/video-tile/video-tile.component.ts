@@ -5,7 +5,6 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { Participant } from "../call/call.component";
 
 @Component({
   selector: "video-tile",
@@ -14,7 +13,15 @@ import { Participant } from "../call/call.component";
 })
 export class VideoTileComponent {
   @Input() joined: boolean;
-  @Input() participant: Participant;
+  // @Input() participant: Participant;
+  @Input() videoOn: boolean;
+  @Input() audioOn: boolean;
+  @Input() local: boolean;
+  @Input() userName: string;
+  @Input() videoTrack: MediaStreamTrack | undefined;
+  @Input() audioTrack: MediaStreamTrack | undefined;
+  videoStream: MediaStream | undefined;
+  audioStream: MediaStream | undefined;
 
   @Output() leaveCallClick: EventEmitter<null> = new EventEmitter();
   @Output() toggleVideoClick: EventEmitter<null> = new EventEmitter();
@@ -22,15 +29,30 @@ export class VideoTileComponent {
 
   ngOnInit(): void {
     console.log("on tile init");
+    if (this.videoTrack) {
+      this.updateVidStream(this.videoTrack);
+    }
+    if (this.audioTrack) {
+      this.updateAudStream(this.audioTrack);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log("tile on change");
+    if (changes["videoTrack"] && changes["videoTrack"].currentValue) {
+      this.updateVidStream(changes["videoTrack"].currentValue);
+    }
+    if (changes["audioTrack"] && changes["audioTrack"].currentValue) {
+      this.updateAudStream(changes["audioTrack"].currentValue);
+    }
   }
 
-  ngDoCheck() {
-    console.log("do check");
-    // to do: check if the original participant values have changed
+  updateVidStream(track: MediaStreamTrack) {
+    this.videoStream = new MediaStream([track]);
+  }
+
+  updateAudStream(track: MediaStreamTrack) {
+    this.audioStream = new MediaStream([track]);
   }
 
   toggleVideo(): void {
