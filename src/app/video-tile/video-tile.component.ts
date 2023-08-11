@@ -28,7 +28,6 @@ export class VideoTileComponent {
   @Output() toggleAudioClick: EventEmitter<null> = new EventEmitter();
 
   ngOnInit(): void {
-    console.log("on tile init");
     if (this.videoTrack) {
       this.updateVidStream(this.videoTrack);
     }
@@ -38,7 +37,6 @@ export class VideoTileComponent {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log("tile on change");
     if (changes["videoTrack"] && changes["videoTrack"].currentValue) {
       this.updateVidStream(changes["videoTrack"].currentValue);
     }

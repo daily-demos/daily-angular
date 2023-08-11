@@ -92,22 +92,31 @@ export class CallComponent {
     const audioIsPlayable = audio.state === "playable";
 
     // Only the video/audio can change currently (not the name or if they're local), so we check for those changes.
+
+    // Possible video state changes
     if (currentParticipant.videoOn !== videoIsPlayable) {
       currentParticipant.videoOn = videoIsPlayable;
     }
+    if (
+      video.persistentTrack &&
+      currentParticipant.videoTrack?.id !== video.persistentTrack?.id
+    ) {
+      currentParticipant.videoTrack = video.persistentTrack;
+    }
+    // Possible audio state changes
     if (currentParticipant.audioOn !== audioIsPlayable) {
       currentParticipant.audioOn = audioIsPlayable;
     }
-    if (currentParticipant.videoTrack?.id !== video.persistentTrack?.id) {
-      currentParticipant.videoTrack = video.persistentTrack;
-    }
-    if (currentParticipant.audioTrack?.id !== audio.persistentTrack?.id) {
+    if (
+      audio.persistentTrack &&
+      currentParticipant.audioTrack?.id !== audio.persistentTrack?.id
+    ) {
       currentParticipant.audioTrack = audio.persistentTrack;
     }
   }
 
   handleJoiningMeeting(e: DailyEventObjectNoPayload | undefined): void {
-    // No action needed
+    // No action needed; leaving this to see the event but it can be removed.
     console.log(e?.action);
   }
 
