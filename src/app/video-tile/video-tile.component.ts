@@ -29,7 +29,7 @@ export class VideoTileComponent {
 
   // If there's a video track or audio track on init and it's ready to play, create a MediaStream for it.
   ngOnInit(): void {
-    if (this.videoTrack && this.videoRe ady) {
+    if (this.videoTrack && this.videoReady) {
       this.addVideoStream(this.videoTrack);
     }
     if (this.audioTrack && this.audioReady) {
