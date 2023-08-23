@@ -49,30 +49,30 @@ export class VideoTileComponent {
     // If it's not included, we need to use existing version of the prop (e.g. this.videoTrack)
     const { videoReady, audioReady, videoTrack, audioTrack } = changes;
 
-    // If the video is now ready or the track changed, and the stream hasn't been created, create it.
+    // If the video stream hasn't been created and the track can be set, create a new stream.
     if (videoReady?.currentValue && !this.videoStream && this.videoTrack) {
       // Use the existing prop since the track hasn't changed.
       this.addVideoStream(this.videoTrack);
-    } else if (!this.videoStream && videoTrack?.currentValue) {
+    } else if (videoTrack?.currentValue && !this.videoStream) {
       // Use the new track and create a stream for it.
       this.addVideoStream(videoTrack.currentValue);
     }
 
-    // If the audio is now ready or the track changed, and the stream hasn't been created, create it.
+    // If the video stream hasn't been created and the track can be set, create a new stream.
     if (audioReady?.currentValue && !this.audioStream && this.audioTrack) {
       // Use the existing prop since the track hasn't changed.
       this.addAudioStream(this.audioTrack);
-    } else if (!this.audioStream && audioTrack?.currentValue) {
+    } else if (audioTrack?.currentValue && !this.audioStream) {
       // Use the new track and create a stream for it.
       this.addAudioStream(audioTrack.currentValue);
     }
 
     // If the video stream exists and a track change occurred, replace the track only.
-    if (this.videoStream && videoTrack?.currentValue) {
+    if (videoTrack?.currentValue && this.videoStream) {
       this.updateVideoTrack(videoTrack.previousValue, videoTrack.currentValue);
     }
     // If the audio stream exists and a track change occurred, replace the track only.
-    if (this.audioStream && audioTrack?.currentValue) {
+    if (audioTrack?.currentValue && this.audioStream) {
       this.updateAudioTrack(audioTrack.previousValue, audioTrack.currentValue);
     }
   }
@@ -86,6 +86,7 @@ export class VideoTileComponent {
   }
 
   updateVideoTrack(oldTrack: MediaStreamTrack, track: MediaStreamTrack) {
+    // This should be true since it's a track change, but check just in case.
     if (oldTrack) {
       this.videoStream?.removeTrack(oldTrack);
     }
@@ -93,6 +94,7 @@ export class VideoTileComponent {
   }
 
   updateAudioTrack(oldTrack: MediaStreamTrack, track: MediaStreamTrack) {
+    // This should be true since it's a track change, but check just in case.
     if (oldTrack) {
       this.audioStream?.removeTrack(oldTrack);
     }
