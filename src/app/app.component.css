@@ -5,6 +5,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: inherit;
 }
 
 main {
@@ -14,7 +15,8 @@ main {
   align-items: center;
   flex: 1;
   background-color: #fff;
-  padding: 4rem 3rem 0;
+  padding: 4rem 1rem 0;
+  width: inherit;
 }
 
 header {
@@ -22,7 +24,7 @@ header {
   line-height: 16px;
   font-weight: bold;
   border-bottom: 1px solid #c8d1dc;
-  padding: 2px;
+  padding: 4px;
   background-color: #fff;
 }
 

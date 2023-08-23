@@ -12,12 +12,15 @@ import {
 export type Participant = {
   videoTrack?: MediaStreamTrack | undefined;
   audioTrack?: MediaStreamTrack | undefined;
-  videoOn: boolean;
-  audioOn: boolean;
+  videoReady: boolean;
+  audioReady: boolean;
   userName: string;
   local: boolean;
   id: string;
 };
+
+const PLAYABLE_STATE = "playable";
+const LOADING_STATE = "loading";
 
 type Participants = {
   [key: string]: Participant;
@@ -65,13 +68,16 @@ export class CallComponent {
   }
 
   // Make a copy of the participant information we're actually interested in to simplify things.
+  // A track is considered ready to play if it's playable or loading. (Loading will be playable very soon!)
   formatParticipantObj(p: DailyParticipant): Participant {
     const { video, audio } = p.tracks;
     return {
       videoTrack: video?.persistentTrack,
       audioTrack: audio?.persistentTrack,
-      videoOn: video.state === "playable",
-      audioOn: audio.state === "playable",
+      videoReady:
+        video.state === PLAYABLE_STATE || video.state === LOADING_STATE,
+      audioReady:
+        audio.state === PLAYABLE_STATE || audio.state === LOADING_STATE,
       userName: p.user_name,
       local: p.local,
       id: p.session_id,
@@ -84,34 +90,33 @@ export class CallComponent {
   }
 
   updateParticipantAsNeeded(participant: DailyParticipant): void {
-    const currentParticipant = this.participants[participant.session_id];
-
-    const { video } = participant.tracks;
-    const { audio } = participant.tracks;
-    const videoIsPlayable = video.state === "playable";
-    const audioIsPlayable = audio.state === "playable";
+    const prevParticipantCopy = this.participants[participant.session_id];
+    const currentParticipantCopy = this.formatParticipantObj(participant);
 
     // Only the video/audio can change currently (not the name or if they're local), so we check for those changes.
+    // Instead of replacing the participant object in this.participants, we update the values that have changed to avoid updating the object reference.
 
-    // Possible video state changes
-    if (currentParticipant.videoOn !== videoIsPlayable) {
-      currentParticipant.videoOn = videoIsPlayable;
+    // Check for possible video state changes.
+    if (prevParticipantCopy.videoReady !== currentParticipantCopy.videoReady) {
+      prevParticipantCopy.videoReady = currentParticipantCopy.videoReady;
     }
     if (
-      video.persistentTrack &&
-      currentParticipant.videoTrack?.id !== video.persistentTrack?.id
+      currentParticipantCopy.videoTrack &&
+      prevParticipantCopy.videoTrack?.id !==
+        currentParticipantCopy.videoTrack?.id
     ) {
-      currentParticipant.videoTrack = video.persistentTrack;
+      prevParticipantCopy.videoTrack = currentParticipantCopy.videoTrack;
     }
-    // Possible audio state changes
-    if (currentParticipant.audioOn !== audioIsPlayable) {
-      currentParticipant.audioOn = audioIsPlayable;
+    // Check for possible audio state changes
+    if (prevParticipantCopy.audioReady !== currentParticipantCopy.audioReady) {
+      prevParticipantCopy.audioReady = currentParticipantCopy.audioReady;
     }
     if (
-      audio.persistentTrack &&
-      currentParticipant.audioTrack?.id !== audio.persistentTrack?.id
+      currentParticipantCopy.audioTrack &&
+      prevParticipantCopy.audioTrack?.id !==
+        currentParticipantCopy.audioTrack?.id
     ) {
-      currentParticipant.audioTrack = audio.persistentTrack;
+      prevParticipantCopy.audioTrack = currentParticipantCopy.audioTrack;
     }
   }
 
@@ -179,7 +184,6 @@ export class CallComponent {
     this.error = "";
     if (!this.callObject) return;
 
-    console.log("leaving/destroying call object");
     // Leave call
     this.callObject.leave();
   }
@@ -190,8 +194,8 @@ export class CallComponent {
     // Confirm they're in the call before updating media
     if (!this.joined) return;
     // Toggle current audio state
-    const videoOn = this.callObject.localVideo();
-    this.callObject.setLocalVideo(!videoOn);
+    const videoReady = this.callObject.localVideo();
+    this.callObject.setLocalVideo(!videoReady);
   }
 
   toggleLocalAudio() {
@@ -200,7 +204,7 @@ export class CallComponent {
     // Confirm they're in the call before updating media
     if (!this.joined) return;
     // Toggle current audio state
-    const audioOn = this.callObject.localAudio();
-    this.callObject.setLocalAudio(!audioOn);
+    const audioReady = this.callObject.localAudio();
+    this.callObject.setLocalAudio(!audioReady);
   }
 }
