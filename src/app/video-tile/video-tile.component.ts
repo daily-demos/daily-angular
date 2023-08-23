@@ -47,7 +47,7 @@ export class VideoTileComponent {
   ngOnChanges(changes: SimpleChanges): void {
     // Note: Only the props that have changed are included in changes.
     // If it's not included, we need to use existing version of the prop (e.g. this.videoTrack)
-    const { videoReady, audioReady, videoTrack, audioTrack } = changes;
+    const { videoTrack, audioTrack } = changes;
 
     // If the video stream hasn't been created and the track can be set, create a new stream.
     if (videoTrack?.currentValue && !this.videoStream) {
