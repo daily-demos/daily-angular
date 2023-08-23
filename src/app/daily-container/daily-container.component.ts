@@ -11,6 +11,7 @@ export class DailyContainerComponent {
   // Most callObject logic in CallComponent.
   callObject: DailyCall | null;
   userName: string;
+  dailyRoomUrl: string;
 
   setCallObject(co: DailyCall): void {
     // Event is emitted from CallComponent
@@ -20,6 +21,11 @@ export class DailyContainerComponent {
   setName(name: string): void {
     // Event is emitted from CallComponent
     this.userName = name;
+  }
+
+  setUrl(url: string): void {
+    // Event is emitted from CallComponent
+    this.dailyRoomUrl = url;
   }
 
   callEnded(): void {

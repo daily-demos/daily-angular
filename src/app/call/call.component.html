@@ -5,6 +5,7 @@
   *ngIf="error"
   [error]="error"
   (reset)="leaveCall()"></error-message>
+<p *ngIf="dailyRoomUrl">Daily room URL: {{ dailyRoomUrl }}</p>
 <p *ngIf="!isPublic">
   This room is private and you are now in the lobby. Please use a public room to
   join a call.

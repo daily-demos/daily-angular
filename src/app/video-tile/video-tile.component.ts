@@ -27,20 +27,20 @@ export class VideoTileComponent {
   @Output() toggleVideoClick: EventEmitter<null> = new EventEmitter();
   @Output() toggleAudioClick: EventEmitter<null> = new EventEmitter();
 
-  // If there's a video track or audio track on init and it's ready to play, create a MediaStream for it.
+  // If there's a video track or audio track on init, create a MediaStream for it.
   ngOnInit(): void {
-    if (this.videoTrack && this.videoReady) {
+    if (this.videoTrack) {
       this.addVideoStream(this.videoTrack);
     }
-    if (this.audioTrack && this.audioReady) {
+    if (this.audioTrack) {
       this.addAudioStream(this.audioTrack);
     }
   }
 
   /**
    * Changes that require updates include:
-   * - Creating a video stream for the first time (either the track didn't exist on init or wasn't ready to play)
-   * - Creating a audio stream for the first time (either the track didn't exist on init or wasn't ready to play)
+   * - Creating a video stream for the first time
+   * - Creating a audio stream for the first time
    * - Replacing the video *track* for an existing video stream
    * - Replacing the audio *track* for an existing audio stream
    */
@@ -50,19 +50,13 @@ export class VideoTileComponent {
     const { videoReady, audioReady, videoTrack, audioTrack } = changes;
 
     // If the video stream hasn't been created and the track can be set, create a new stream.
-    if (videoReady?.currentValue && !this.videoStream && this.videoTrack) {
-      // Use the existing prop since the track hasn't changed.
-      this.addVideoStream(this.videoTrack);
-    } else if (videoTrack?.currentValue && !this.videoStream) {
+    if (videoTrack?.currentValue && !this.videoStream) {
       // Use the new track and create a stream for it.
       this.addVideoStream(videoTrack.currentValue);
     }
 
     // If the video stream hasn't been created and the track can be set, create a new stream.
-    if (audioReady?.currentValue && !this.audioStream && this.audioTrack) {
-      // Use the existing prop since the track hasn't changed.
-      this.addAudioStream(this.audioTrack);
-    } else if (audioTrack?.currentValue && !this.audioStream) {
+    if (audioTrack?.currentValue && !this.audioStream) {
       // Use the new track and create a stream for it.
       this.addAudioStream(audioTrack.currentValue);
     }
@@ -71,6 +65,7 @@ export class VideoTileComponent {
     if (videoTrack?.currentValue && this.videoStream) {
       this.updateVideoTrack(videoTrack.previousValue, videoTrack.currentValue);
     }
+
     // If the audio stream exists and a track change occurred, replace the track only.
     if (audioTrack?.currentValue && this.audioStream) {
       this.updateAudioTrack(audioTrack.previousValue, audioTrack.currentValue);

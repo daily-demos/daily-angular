@@ -10,6 +10,7 @@ import DailyIframe, { DailyCall } from "@daily-co/daily-js";
 export class JoinFormComponent {
   @Output() setCallObject: EventEmitter<DailyCall> = new EventEmitter();
   @Output() setName: EventEmitter<string> = new EventEmitter();
+  @Output() setUrl: EventEmitter<string> = new EventEmitter();
   callObject: DailyCall;
 
   joinForm = this.formBuilder.group({
@@ -36,5 +37,7 @@ export class JoinFormComponent {
     this.setCallObject.emit(this.callObject);
     // Emit event to update userName var in parent component
     this.setName.emit(name);
+    // Emit event to update userName var in parent component
+    this.setUrl.emit(url);
   }
 }

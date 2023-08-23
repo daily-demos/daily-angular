@@ -34,6 +34,7 @@ type Participants = {
 export class CallComponent {
   Object = Object;
   @Input() callObject: DailyCall;
+  @Input() dailyRoomUrl: string;
   @Output() callEnded: EventEmitter<null> = new EventEmitter();
   error: string = "";
   participants: Participants = {};
