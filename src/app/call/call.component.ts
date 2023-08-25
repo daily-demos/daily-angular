@@ -7,6 +7,7 @@ import {
   DailyEventObjectParticipants,
   DailyEventObjectNoPayload,
   DailyEventObjectParticipantLeft,
+  DailyEventObjectTrack,
 } from "@daily-co/daily-js";
 
 export type Participant = {
@@ -46,10 +47,10 @@ export class CallComponent {
     if (!this.callObject) return;
     // Add event listeners for Daily events
     this.callObject
-      .on("joining-meeting", this.handleJoiningMeeting)
       .on("joined-meeting", this.handleJoinedMeeting)
       .on("participant-joined", this.participantJoined)
-      .on("participant-updated", this.updateParticipants)
+      .on("track-started", this.handleTrackStartedStopped)
+      .on("track-stopped", this.handleTrackStartedStopped)
       .on("participant-left", this.handleParticipantLeft)
       .on("left-meeting", this.handleLeftMeeting)
       .on("error", this.handleError);
@@ -59,10 +60,10 @@ export class CallComponent {
     if (!this.callObject) return;
     // Remove event listeners for Daily events
     this.callObject
-      .off("joining-meeting", this.handleJoiningMeeting)
       .off("joined-meeting", this.handleJoinedMeeting)
       .off("participant-joined", this.participantJoined)
-      .off("participant-updated", this.updateParticipants)
+      .off("track-started", this.handleTrackStartedStopped)
+      .off("track-stopped", this.handleTrackStartedStopped)
       .off("participant-left", this.handleParticipantLeft)
       .off("left-meeting", this.handleLeftMeeting)
       .off("error", this.handleError);
@@ -72,13 +73,15 @@ export class CallComponent {
   // A track is considered ready to play if it's playable or loading. (Loading will be playable very soon!)
   formatParticipantObj(p: DailyParticipant): Participant {
     const { video, audio } = p.tracks;
+    const vt = video?.persistentTrack;
+    const at = audio?.persistentTrack;
     return {
-      videoTrack: video?.persistentTrack,
-      audioTrack: audio?.persistentTrack,
+      videoTrack: vt,
+      audioTrack: at,
       videoReady:
-        video.state === PLAYABLE_STATE || video.state === LOADING_STATE,
+        !!(vt && (video.state === PLAYABLE_STATE || video.state === LOADING_STATE)),
       audioReady:
-        audio.state === PLAYABLE_STATE || audio.state === LOADING_STATE,
+        !!(at && (audio.state === PLAYABLE_STATE || audio.state === LOADING_STATE)),
       userName: p.user_name,
       local: p.local,
       id: p.session_id,
@@ -90,40 +93,30 @@ export class CallComponent {
     this.participants[participant.session_id] = p;
   }
 
-  updateParticipantAsNeeded(participant: DailyParticipant): void {
-    const prevParticipantCopy = this.participants[participant.session_id];
+  updateTrack(participant: DailyParticipant, newTrackType: string): void {
+    const existingParticipant = this.participants[participant.session_id];
     const currentParticipantCopy = this.formatParticipantObj(participant);
 
-    // Only the video/audio can change currently (not the name or if they're local), so we check for those changes.
-    // Instead of replacing the participant object in this.participants, we update the values that have changed to avoid updating the object reference.
+    if (newTrackType === "video") {
+      if (existingParticipant.videoReady !== currentParticipantCopy.videoReady) {
+        existingParticipant.videoReady = currentParticipantCopy.videoReady;
+      }
 
-    // Check for possible video state changes.
-    if (prevParticipantCopy.videoReady !== currentParticipantCopy.videoReady) {
-      prevParticipantCopy.videoReady = currentParticipantCopy.videoReady;
+      if (currentParticipantCopy.videoReady && existingParticipant.videoTrack?.id !== currentParticipantCopy.videoTrack?.id) {
+        existingParticipant.videoTrack = currentParticipantCopy.videoTrack;
+      }
+      return; 
     }
-    if (
-      currentParticipantCopy.videoTrack &&
-      prevParticipantCopy.videoTrack?.id !==
-        currentParticipantCopy.videoTrack?.id
-    ) {
-      prevParticipantCopy.videoTrack = currentParticipantCopy.videoTrack;
-    }
-    // Check for possible audio state changes
-    if (prevParticipantCopy.audioReady !== currentParticipantCopy.audioReady) {
-      prevParticipantCopy.audioReady = currentParticipantCopy.audioReady;
-    }
-    if (
-      currentParticipantCopy.audioTrack &&
-      prevParticipantCopy.audioTrack?.id !==
-        currentParticipantCopy.audioTrack?.id
-    ) {
-      prevParticipantCopy.audioTrack = currentParticipantCopy.audioTrack;
-    }
-  }
 
-  handleJoiningMeeting(e: DailyEventObjectNoPayload | undefined): void {
-    // No action needed; leaving this to see the event but it can be removed.
-    console.log(e?.action);
+    if (newTrackType === "audio") {
+      if (existingParticipant.audioReady !== currentParticipantCopy.audioReady) {
+        existingParticipant.audioReady = currentParticipantCopy.audioReady;
+      }
+
+      if (currentParticipantCopy.audioReady && existingParticipant.audioTrack?.id !== currentParticipantCopy.audioTrack?.id) {
+        existingParticipant.audioTrack = currentParticipantCopy.audioTrack;
+      }
+    }
   }
 
   handleJoinedMeeting = (e: DailyEventObjectParticipants | undefined): void => {
@@ -147,14 +140,10 @@ export class CallComponent {
     this.addParticipant(e.participant);
   };
 
-  updateParticipants = (e: DailyEventObjectParticipant | undefined): void => {
-    if (!e) return;
-    // This is sometimes emitted before joined-meeting
-    if (!this.joined) return;
-
-    // Note: This event is triggered often and can cause performance issues if it results in rerendering child components every time it's emitted.
-
-    this.updateParticipantAsNeeded(e.participant);
+  handleTrackStartedStopped = (e: DailyEventObjectTrack | undefined): void => {
+    console.log("track started or stopped")
+    if (!e || !e.participant || !this.joined) return;
+    this.updateTrack(e.participant, e.type);
   };
 
   handleParticipantLeft = (

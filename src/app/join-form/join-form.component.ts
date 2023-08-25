@@ -37,7 +37,7 @@ export class JoinFormComponent {
     this.setCallObject.emit(this.callObject);
     // Emit event to update userName var in parent component
     this.setName.emit(name);
-    // Emit event to update userName var in parent component
+    // Emit event to update URL var in parent component
     this.setUrl.emit(url);
   }
 }
