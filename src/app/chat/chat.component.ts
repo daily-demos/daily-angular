@@ -1,6 +1,9 @@
 import { Component, Input } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import DailyIframe, { DailyCall, DailyEventObjectAppMessage } from "@daily-co/daily-js";
+import DailyIframe, {
+  DailyCall,
+  DailyEventObjectAppMessage,
+} from "@daily-co/daily-js";
 
 interface Message {
   name: string;
@@ -16,14 +19,13 @@ export class ChatComponent {
   @Input() userName: string;
   callObject: DailyCall;
   messages: Array<Message> = [];
+  chatIsOpen: boolean = false;
 
   constructor(private formBuilder: FormBuilder) {}
 
   chatForm = this.formBuilder.group({
     message: "",
   });
-
-  chatIsOpen = false;
 
   ngOnInit(): void {
     this.callObject = DailyIframe.getCallInstance();
