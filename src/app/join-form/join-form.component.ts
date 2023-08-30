@@ -9,7 +9,7 @@ import DailyIframe, { DailyCall } from "@daily-co/daily-js";
 })
 export class JoinFormComponent {
   @Output() setCallObject: EventEmitter<DailyCall> = new EventEmitter();
-  @Output() setName: EventEmitter<string> = new EventEmitter();
+  @Output() setUserName: EventEmitter<string> = new EventEmitter();
   @Output() setUrl: EventEmitter<string> = new EventEmitter();
   callObject: DailyCall;
 
@@ -23,20 +23,11 @@ export class JoinFormComponent {
   onSubmit(): void {
     const { name, url } = this.joinForm.value;
     if (!name || !url) return;
-    // Create the call object
-    this.callObject = DailyIframe.createCallObject();
-    // Join Daily call
-    this.callObject.join({
-      userName: name!, // not null to make TypeScript happy
-      url: url!,
-    });
 
     // Clear form inputs
     this.joinForm.reset();
-    // Emit event to update callObject var in parent component
-    this.setCallObject.emit(this.callObject);
     // Emit event to update userName var in parent component
-    this.setName.emit(name);
+    this.setUserName.emit(name);
     // Emit event to update URL var in parent component
     this.setUrl.emit(url);
   }

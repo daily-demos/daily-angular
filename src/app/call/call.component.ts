@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import {
+import DailyIframe, {
   DailyCall,
   DailyEventObjectParticipant,
   DailyParticipant,
@@ -34,17 +34,22 @@ type Participants = {
 })
 export class CallComponent {
   Object = Object;
-  @Input() callObject: DailyCall;
   @Input() dailyRoomUrl: string;
+  @Input() userName: string;
   @Output() callEnded: EventEmitter<null> = new EventEmitter();
+  callObject: DailyCall;
   error: string = "";
   participants: Participants = {};
   isPublic: boolean = true;
   joined: boolean = false;
-  name: string = "";
 
   ngOnInit(): void {
-    if (!this.callObject) return;
+    // Retrieve or create the call object
+    this.callObject = DailyIframe.getCallInstance();
+    if (!this.callObject) {
+      this.callObject = DailyIframe.createCallObject();
+    }
+
     // Add event listeners for Daily events
     this.callObject
       .on("joined-meeting", this.handleJoinedMeeting)
@@ -54,6 +59,12 @@ export class CallComponent {
       .on("participant-left", this.handleParticipantLeft)
       .on("left-meeting", this.handleLeftMeeting)
       .on("error", this.handleError);
+
+    // Join Daily call
+    this.callObject.join({
+      userName: this.userName,
+      url: this.dailyRoomUrl,
+    });
   }
 
   ngOnDestroy(): void {
