@@ -9,16 +9,10 @@ import { DailyCall } from "@daily-co/daily-js";
 export class DailyContainerComponent {
   // Store callObject in this parent container.
   // Most callObject logic in CallComponent.
-  callObject: DailyCall | null;
   userName: string;
   dailyRoomUrl: string;
 
-  setCallObject(co: DailyCall): void {
-    // Event is emitted from CallComponent
-    this.callObject = co;
-  }
-
-  setName(name: string): void {
+  setUserName(name: string): void {
     // Event is emitted from CallComponent
     this.userName = name;
   }
@@ -29,9 +23,8 @@ export class DailyContainerComponent {
   }
 
   callEnded(): void {
-    // Event is emitted from CallComponent
-    console.log("resetting call object in container");
     // Truthy value will show the CallComponent; otherwise, the JoinFormComponent is shown.
-    this.callObject = null;
+    this.dailyRoomUrl = "";
+    this.userName = "";
   }
 }
