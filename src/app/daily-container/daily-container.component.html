@@ -1,0 +1,13 @@
+<h1>Daily Client SDK for JavaScript Angular demo</h1>
+<join-form
+  *ngIf="!dailyRoomUrl"
+  (setUserName)="setUserName($event)"
+  (setUrl)="setUrl($event)"></join-form>
+<app-call
+  *ngIf="dailyRoomUrl"
+  [userName]="userName"
+  [dailyRoomUrl]="dailyRoomUrl"
+  (callEnded)="callEnded()"></app-call>
+<app-chat
+  *ngIf="dailyRoomUrl"
+  [userName]="userName"></app-chat>

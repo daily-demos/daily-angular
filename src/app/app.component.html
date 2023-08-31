@@ -1,0 +1,33 @@
+<header>
+  <div class="container">
+    <div class="row">
+      <a href="https://daily.co/"
+        ><img src="../assets/daily-logo.svg" alt="Daily logo" target="_blank"
+      /></a>
+      <div class="divider"></div>
+      <img height="24" src="../assets/angular.svg" alt="Angular logo" />
+      <a href="https://github.com/daily-demos/daily-angular" target="_blank"
+        ><span class="header-title">Daily call object Angular demo</span></a
+      >
+    </div>
+
+    <div class="row">
+      <a class="round" href="https://docs.daily.co/reference/daily-js"
+        >API docs <img src="../assets/newtab.svg" alt="Daily logo"
+      /></a>
+      <a href="https://github.com/daily-demos/daily-angular" target="_blank">
+        <img height="24" alt="Github" src="../assets/github.svg"
+      /></a>
+    </div>
+  </div>
+</header>
+
+<main class="content">
+  <!-- Components are rendered based on the route -->
+  <router-outlet></router-outlet>
+
+  <!-- Footer -->
+  <footer>
+    <p>Brought to you by Daily :)</p>
+  </footer>
+</main>

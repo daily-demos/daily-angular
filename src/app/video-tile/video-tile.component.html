@@ -1,0 +1,54 @@
+<video
+  *ngIf="videoStream"
+  autoPlay
+  muted
+  playsInline
+  [srcObject]="videoStream"></video>
+<div class="video-placeholder" *ngIf="!videoReady">
+  <span>
+    <img
+      *ngIf="!videoReady && !local"
+      src="../../assets/vid_off.svg"
+      alt="Camera is off" />
+  </span>
+</div>
+<audio
+  *ngIf="audioStream && !local"
+  autoPlay
+  playsInline
+  [srcObject]="audioStream">
+  <track kind="captions" />
+</audio>
+<div class="participant-info">
+  <p class="name">
+    {{ userName }}
+  </p>
+  <img
+    *ngIf="!audioReady && !local"
+    src="../../assets/mic_off.svg"
+    alt="Mic is off" />
+  <img
+    *ngIf="audioReady && !local"
+    src="../../assets/mic_on.svg"
+    alt="Mic is on" />
+</div>
+
+<div *ngIf="local && this.joined" id="controls">
+  <button class="media-control" (click)="toggleVideo()">
+    <img
+      *ngIf="!videoReady"
+      src="../../assets/vid_off.svg"
+      alt="Turn video on" />
+    <img
+      *ngIf="videoReady"
+      src="../../assets/vid_on.svg"
+      alt="Turn video off" />
+  </button>
+  <button class="media-control" (click)="toggleAudio()">
+    <img *ngIf="!audioReady" src="../../assets/mic_off.svg" alt="Turn mic on" />
+    <img *ngIf="audioReady" src="../../assets/mic_on.svg" alt="Turn mic off" />
+  </button>
+</div>
+<button *ngIf="local" id="leaveCallButton" (click)="handleLeaveCallClick()">
+  <img src="../../assets/leave_call.svg" alt="Leave call" />
+</button>

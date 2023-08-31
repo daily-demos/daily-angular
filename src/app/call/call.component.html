@@ -1,0 +1,26 @@
+<h2 *ngIf="!error">
+  Participant count: {{ Object.keys(participants).length }}
+</h2>
+<error-message
+  *ngIf="error"
+  [error]="error"
+  (reset)="leaveCall()"></error-message>
+<p *ngIf="dailyRoomUrl">Daily room URL: {{ dailyRoomUrl }}</p>
+<p *ngIf="!isPublic">
+  This room is private and you are now in the lobby. Please use a public room to
+  join a call.
+</p>
+<div *ngIf="!error" class="participants-container">
+  <video-tile
+    *ngFor="let participant of Object.values(participants)"
+    (leaveCallClick)="leaveCall()"
+    (toggleVideoClick)="toggleLocalVideo()"
+    (toggleAudioClick)="toggleLocalAudio()"
+    [joined]="joined"
+    [videoReady]="participant.videoReady"
+    [audioReady]="participant.audioReady"
+    [userName]="participant.userName"
+    [local]="participant.local"
+    [videoTrack]="participant.videoTrack"
+    [audioTrack]="participant.audioTrack"></video-tile>
+</div>
