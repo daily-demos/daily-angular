@@ -1,5 +1,4 @@
 import { Component } from "@angular/core";
-import { DailyCall } from "@daily-co/daily-js";
 
 @Component({
   selector: "app-daily-container",
@@ -13,12 +12,12 @@ export class DailyContainerComponent {
   dailyRoomUrl: string;
 
   setUserName(name: string): void {
-    // Event is emitted from CallComponent
+    // Event is emitted from JoinForm
     this.userName = name;
   }
 
   setUrl(url: string): void {
-    // Event is emitted from CallComponent
+    // Event is emitted from JoinForm
     this.dailyRoomUrl = url;
   }
 

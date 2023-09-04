@@ -8,6 +8,4 @@
   [userName]="userName"
   [dailyRoomUrl]="dailyRoomUrl"
   (callEnded)="callEnded()"></app-call>
-<app-chat
-  *ngIf="dailyRoomUrl"
-  [userName]="userName"></app-chat>
+<app-chat *ngIf="dailyRoomUrl" [userName]="userName"></app-chat>

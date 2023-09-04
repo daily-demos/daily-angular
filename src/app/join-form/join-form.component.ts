@@ -1,6 +1,5 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import DailyIframe, { DailyCall } from "@daily-co/daily-js";
 
 @Component({
   selector: "join-form",
@@ -8,10 +7,8 @@ import DailyIframe, { DailyCall } from "@daily-co/daily-js";
   styleUrls: ["./join-form.component.css"],
 })
 export class JoinFormComponent {
-  @Output() setCallObject: EventEmitter<DailyCall> = new EventEmitter();
   @Output() setUserName: EventEmitter<string> = new EventEmitter();
   @Output() setUrl: EventEmitter<string> = new EventEmitter();
-  callObject: DailyCall;
 
   joinForm = this.formBuilder.group({
     name: "",
