@@ -96,11 +96,11 @@ export class VideoTileComponent {
     this.audioStream?.addTrack(track);
   }
 
-  toggleVideo(): void {
+  handleToggleVideoClick(): void {
     this.toggleVideoClick.emit();
   }
 
-  toggleAudio(): void {
+  handleToggleAudioClick(): void {
     this.toggleAudioClick.emit();
   }
 

@@ -33,7 +33,7 @@
     alt="Mic is on" />
 </div>
 <div *ngIf="local && this.joined" id="controls">
-  <button class="media-control" (click)="toggleVideo()">
+  <button class="media-control" (click)="handleToggleVideoClick()">
     <img
       *ngIf="!videoReady"
       src="../../assets/vid_off.svg"
@@ -43,7 +43,7 @@
       src="../../assets/vid_on.svg"
       alt="Turn video off" />
   </button>
-  <button class="media-control" (click)="toggleAudio()">
+  <button class="media-control" (click)="handleToggleAudioClick()">
     <img *ngIf="!audioReady" src="../../assets/mic_off.svg" alt="Turn mic on" />
     <img *ngIf="audioReady" src="../../assets/mic_on.svg" alt="Turn mic off" />
   </button>
