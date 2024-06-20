@@ -37,7 +37,7 @@ export class CallComponent {
   @Input() dailyRoomUrl: string;
   @Input() userName: string;
   @Output() callEnded: EventEmitter<null> = new EventEmitter();
-  callObject: DailyCall;
+  callObject: DailyCall | undefined;
   error: string = "";
   participants: Participants = {};
   isPublic: boolean = true;
@@ -89,10 +89,14 @@ export class CallComponent {
     return {
       videoTrack: vt,
       audioTrack: at,
-      videoReady:
-        !!(vt && (video.state === PLAYABLE_STATE || video.state === LOADING_STATE)),
-      audioReady:
-        !!(at && (audio.state === PLAYABLE_STATE || audio.state === LOADING_STATE)),
+      videoReady: !!(
+        vt &&
+        (video.state === PLAYABLE_STATE || video.state === LOADING_STATE)
+      ),
+      audioReady: !!(
+        at &&
+        (audio.state === PLAYABLE_STATE || audio.state === LOADING_STATE)
+      ),
       userName: p.user_name,
       local: p.local,
       id: p.session_id,
@@ -109,29 +113,41 @@ export class CallComponent {
     const currentParticipantCopy = this.formatParticipantObj(participant);
 
     if (newTrackType === "video") {
-      if (existingParticipant.videoReady !== currentParticipantCopy.videoReady) {
+      if (
+        existingParticipant.videoReady !== currentParticipantCopy.videoReady
+      ) {
         existingParticipant.videoReady = currentParticipantCopy.videoReady;
       }
 
-      if (currentParticipantCopy.videoReady && existingParticipant.videoTrack?.id !== currentParticipantCopy.videoTrack?.id) {
+      if (
+        currentParticipantCopy.videoReady &&
+        existingParticipant.videoTrack?.id !==
+          currentParticipantCopy.videoTrack?.id
+      ) {
         existingParticipant.videoTrack = currentParticipantCopy.videoTrack;
       }
-      return; 
+      return;
     }
 
     if (newTrackType === "audio") {
-      if (existingParticipant.audioReady !== currentParticipantCopy.audioReady) {
+      if (
+        existingParticipant.audioReady !== currentParticipantCopy.audioReady
+      ) {
         existingParticipant.audioReady = currentParticipantCopy.audioReady;
       }
 
-      if (currentParticipantCopy.audioReady && existingParticipant.audioTrack?.id !== currentParticipantCopy.audioTrack?.id) {
+      if (
+        currentParticipantCopy.audioReady &&
+        existingParticipant.audioTrack?.id !==
+          currentParticipantCopy.audioTrack?.id
+      ) {
         existingParticipant.audioTrack = currentParticipantCopy.audioTrack;
       }
     }
   }
 
   handleJoinedMeeting = (e: DailyEventObjectParticipants | undefined): void => {
-    if (!e) return; // make TypeScript happy
+    if (!e || !this.callObject) return;
     console.log(e);
     this.joined = true;
 
@@ -152,8 +168,8 @@ export class CallComponent {
   };
 
   handleTrackStartedStopped = (e: DailyEventObjectTrack | undefined): void => {
-    console.log("track started or stopped")
-    if (!e || !e.participant || !this.joined) return;
+    console.log("track started or stopped");
+    if (!e || !e.participant || !this.joined) return;
     this.updateTrack(e.participant, e.type);
   };
 
@@ -174,7 +190,7 @@ export class CallComponent {
   };
 
   handleLeftMeeting = (e: DailyEventObjectNoPayload | undefined): void => {
-    if (!e) return;
+    if (!e || !this.callObject) return;
     console.log(e);
     this.joined = false;
     this.callObject.destroy();
@@ -193,7 +209,8 @@ export class CallComponent {
     // Event is emitted from VideoTileComponent
 
     // Confirm they're in the call before updating media
-    if (!this.joined) return;
+    if (!this.joined || !this.callObject) return;
+
     // Toggle current audio state
     const videoReady = this.callObject.localVideo();
     this.callObject.setLocalVideo(!videoReady);
@@ -203,7 +220,8 @@ export class CallComponent {
     // Event is emitted from VideoTileComponent
 
     // Confirm they're in the call before updating media
-    if (!this.joined) return;
+    if (!this.joined || !this.callObject) return;
+
     // Toggle current audio state
     const audioReady = this.callObject.localAudio();
     this.callObject.setLocalAudio(!audioReady);
