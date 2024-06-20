@@ -17,7 +17,7 @@ interface Message {
 })
 export class ChatComponent {
   @Input() userName: string;
-  callObject: DailyCall;
+  callObject: DailyCall | undefined;
   messages: Array<Message> = [];
   chatIsOpen: boolean = false;
 
@@ -64,7 +64,7 @@ export class ChatComponent {
 
   onSubmit(): void {
     const message = this.chatForm.value.message?.trim();
-    if (!message) return;
+    if (!message || !this.callObject) return;
 
     this.callObject.sendAppMessage({
       message: message,
